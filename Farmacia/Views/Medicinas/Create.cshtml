@@ -1,0 +1,152 @@
+@model Farmacia.Models.Medicinas
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        <h4>Medicina</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+
+
+        <div class="form-group col-lg-12">
+            <div class="input-group">
+                <input class="form-control input-group-sm col-2" type="text" id="tbProducto" placeholder="Producto" />
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="input-group">
+                <input class="form-control input-group-sm col-2" type="text" id="tbDescripcion" placeholder="Descripcion" />
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="input-group">
+                <input class="form-control input-group-sm col-2" type="text" id="tbPrecioVenta" placeholder="Precio Venta" />
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="input-group">
+                <input class="form-control input-group-sm col-2" type="text" id="tbPrecioCompra" placeholder="Precio Compra" />
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class=" input-group">
+                <input class="form-control input-group-sm col-2" type="text" id="dpFecha" placeholder="Fecha" />
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="input-group">
+                <input class="form-control input-group-sm col-2" type="text" id="tbCantidadExistencia" placeholder="Cantidad Existencia" />
+                <select class="form-control selected" id="ComboBox"></select>
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="input-group">
+                <input class="form-control input-group-sm col-2" type="text" id="tbEspecificaciones" placeholder="Especificaciones" />
+                <select class="form-control selected" id="ComboBoxC"></select>
+            </div>
+        </div>
+        <div class="form-group text-center col-xl-12">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="button" class="btn btn-default col-sm-2" id="btnCrear" onclick="CrearMedicina()">Crear</button>
+            </div>
+        </div>
+    </div>
+}
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                Cargar();
+                CargarC();
+            })
+            function EnviarMedicina(producto) {
+                $.ajax(
+                    {
+                        method: "POST",
+                        url: "/Medicinas/Save",
+                        data: producto,
+                        success: function (id) {
+                            if (parseInt(id) > 0) {
+                            }
+                            else {
+                                alert("");
+                            }
+                        }
+                    });
+            };
+            function CrearMedicina() {
+                var pro = $('#tbProducto').val();
+                var des = $('#tbDescripcion').val();
+                var prev = $('#tbPrecioVenta').val();
+                var prec = $('#tbPrecioCompra').val();
+                var fec = $('#dtFecha').val();
+                var cant = $('#tbCantidadExistencia').val();
+                var a = $('#ComboBox').find('option:selected');
+                var b = a.attr('id');
+                var esp = $('#tbEspecificaciones').val();
+                var c = $('#ComboBoxC').find('option:selected');
+                var d = c.attr('id');
+                var medicina = {
+                    MedicinaId: 0,
+                    Nombre: pro,
+                    Descripcion: des,
+                    PrecioVenta: prev,
+                    PrecioCompra: prec,
+                    FechaVencimiento: fec,
+                    CantidadExistencia: cant,
+                    LaboratorioId: b,
+                    Especificaciones: esp,
+                    CategoriaId: d                   
+                }
+                console.log(medicina);
+                EnviarMedicina(medicina);
+            }
+            function Cargar() {
+                $.getJSON("/Laboratorios/Lista",
+                    {
+                        id: 1
+                    },
+                    function (lista) {
+                        $.each(lista, function (index, lista) {
+                            var Id = lista.laboratorioId;
+                            var eso = 1;
+                            var Nombre = lista.nombre;
+                            var option = "<option id='" + Id + "'value='" + eso + "'>" + Nombre + "</option>";
+                            $('#ComboBox').append(option);
+                        });
+                    });
+            }
+            function CargarC() {
+                $.getJSON("/Categorias/Lista",
+                    {
+                        id: 1
+                    },
+                    function (lista) {
+                        $.each(lista, function (index, lista) {
+                            var Id = lista.categoriaId
+                            var Nombre = lista.descripcion;
+                            var a = 1
+                            var option = "<option id='" + Id + "'value='" + a + "'>" + Nombre + "</option>";
+                            $('#ComboBoxC').append(option);
+                        });
+                    });
+            }
+        </script>
+    }
+}
